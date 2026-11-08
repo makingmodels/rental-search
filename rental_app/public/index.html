@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffefc">
+  <title>M&amp;A</title>
+  <link rel="icon" href="/avatar-mansa.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div id="preloader" class="preloader" aria-live="polite"><div id="animation"></div></div>
+  <div id="login" class="login-screen hidden">
+    <div class="login-brand"><div class="brand">M&amp;A</div><div class="avatar-pair" aria-hidden="true"><img src="/avatar-mansa.svg" alt=""><img src="/avatar-ash.svg" alt=""></div></div>
+    <div class="login-layout">
+      <section class="login-intro" aria-labelledby="login-title">
+        <h1 class="login-title" id="login-title">Property Search Platform</h1>
+        <ul class="feature-list">
+          <li>Four portals (Zoopla, Rightmove, OnTheMarket, OpenRent) searched four times a day</li>
+          <li>Filtered by our criteria</li>
+          <li>Pros and cons gathered from every listing</li>
+          <li>All-in monthly cost calculated (council tax, energy and extras)</li>
+          <li>TfL commute times to Revolut and UCL</li>
+          <li>Shared shortlist with likes and notes</li>
+        </ul>
+      </section>
+      <div class="login-panel">
+        <div id="handshake" class="handshake" aria-hidden="true"></div>
+        <form id="login-form" class="login-form"><h2>Sign in</h2><label for="username">Username</label><input id="username" name="username" autocomplete="username" required placeholder="mansa or ash"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><p id="login-error" class="error" role="alert"></p><button class="primary" type="submit">Sign in</button></form>
+      </div>
+    </div>
+  </div>
+  <div id="app" class="hidden">
+    <header class="topbar"><div class="brand">M&amp;A</div><nav aria-label="Main navigation"><button class="nav-item active" data-view="all">Discover</button><button class="nav-item" data-view="saved">Shortlist <span id="saved-count" class="count">0</span></button></nav><div class="account"><img id="account-avatar" class="avatar" alt=""><span class="account-name" id="account-name"></span><button id="logout" class="text-button">Sign out</button></div></header>
+    <main class="shell">
+      <div class="page-heading">
+        <div><h1>Flat search</h1><p id="last-scan" class="last-scan"></p></div>
+        <div class="heading-actions"><button id="criteria-open" class="secondary" aria-haspopup="dialog">Edit criteria</button><button id="scan" class="primary scan-button">Search now</button></div>
+      </div>
+      <div class="results-heading"><h2><span id="section-title">Listings</span> <span id="count-all" class="count">0</span></h2><label class="sort-label" id="sort-label">Sort by <select id="sort"><option value="score">Best fit</option><option value="total">Lowest all-in cost</option><option value="value">Most space per £</option><option value="new">Recently found</option></select></label></div>
+      <div class="results-layout">
+        <div class="results-main">
+          <div id="listings" class="listing-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+          <div id="empty" class="empty hidden"><h3>No listings yet</h3><p>Run a search to pull listings from the portals.</p><button id="empty-scan" class="secondary">Search now</button></div>
+        </div>
+        <aside class="sidebar">
+          <div class="sidebar-map"><div id="overview-map" aria-label="Map of listing locations"></div><div class="map-caption"><strong id="map-count">Listings</strong><small>Pins may be approximate.</small></div></div>
+          <div class="journey-panel"><h3>Commutes</h3><div class="destination"><strong>Revolut</strong><span>Canary Wharf, E14 5HX</span></div><div class="destination"><strong>UCL Bloomsbury</strong><span>Gower Street, WC1E 6BT</span></div></div>
+          <div class="source-panel"><h3>Search status <span class="status-dot" id="status-dot"></span></h3><p id="scan-status">Idle.</p><div id="source-status"></div></div>
+        </aside>
+      </div>
+      <footer><div class="brand">M&amp;A</div><span>TfL Open Data · © OpenStreetMap contributors</span></footer>
+    </main>
+  </div>
+  <dialog id="criteria-dialog" class="sheet" aria-labelledby="criteria-title">
+    <form id="criteria-form" class="criteria-form">
+      <div class="sheet-head"><h2 id="criteria-title">Criteria</h2><button class="close-modal" type="button" id="criteria-cancel" aria-label="Close criteria"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="criteria-numbers">
+        <label>Maximum rent (£ per month)<input name="max_price" type="number" min="500" max="10000" step="50" required></label>
+        <label>Bedrooms<input name="beds" type="number" min="1" max="5" required></label>
+        <label>Longest commute to Revolut (minutes)<input name="max_work_minutes" type="number" min="5" max="120" required></label>
+        <label>Longest walk to the station (minutes)<input name="max_station_walk" type="number" min="1" max="60" required></label>
+      </div>
+      <fieldset class="criteria-rules"><legend>Must have</legend>
+        <label><input type="checkbox" name="require_furnished"> Furnished</label>
+        <label><input type="checkbox" name="exclude_basement"> Not a basement or lower ground</label>
+        <label><input type="checkbox" name="require_living_room"> A separate living room</label>
+        <label><input type="checkbox" name="require_floor_level"> Floor level stated</label>
+        <label><input type="checkbox" name="require_floorplan"> A floorplan</label>
+        <label><input type="checkbox" name="require_in_area"> In your chosen postcodes</label>
+      </fieldset>
+      <p class="criteria-note">Rent and bedroom changes also change what the next search asks the portals for.</p>
+      <div class="criteria-actions"><button class="primary" type="submit">Save criteria</button></div>
+    </form>
+  </dialog>
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-shade" data-close="true"></div><div class="modal-content"><button class="close-modal" id="close-modal" aria-label="Close listing details"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="modal-body"></div></div></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

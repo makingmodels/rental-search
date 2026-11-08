@@ -1,0 +1,17 @@
+# Publish only what the app needs: everything else in this folder stays local.
+/*
+!/.gitignore
+!/render.yaml
+!/Borough-BandA-BandB-BandC-BandD-BandE-BandF-BandG-.csv
+!/rental_app/
+!/flat-hunter-main/
+/flat-hunter-main/*
+!/flat-hunter-main/flat-hunter-main/
+/flat-hunter-main/flat-hunter-main/*
+!/flat-hunter-main/flat-hunter-main/sources.py
+
+# Never publish secrets or personal data.
+.env
+*.sqlite3
+*.sqlite3-*
+__pycache__/

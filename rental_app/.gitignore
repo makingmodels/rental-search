@@ -1,0 +1,5 @@
+rentals.sqlite3
+rentals.sqlite3-*
+__pycache__/
+.env
+rentals.backup-*.sqlite3
