@@ -111,7 +111,7 @@ def _check_budget():
 
 
 def _proxy():
-    url = os.environ.get("PROXY_URL") or ""
+    url = (os.environ.get("PROXY_URL") or "").strip().strip("'\"").strip()  # pasted values often carry a newline or quotes, which curl rejects
     if "{session}" not in url:
         return url
     if not meter.get("session"):
