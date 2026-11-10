@@ -32,7 +32,7 @@ import config
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/129.0 Safari/537.36")
 POLITE_DELAY = 1.5      # seconds between page requests to one site
-ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
+ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true" or os.environ.get("RENDER") == "true"  # data-centre hosts the portals block
 
 # The search area and limits (config.SEARCH): OpenRent is filtered against them, and
 # every site's results are kept to the circle, as Rightmove's radius search does.

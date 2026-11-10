@@ -490,6 +490,9 @@ def scan():
         known = set(versions)
         fetched = 0
         for source in (Rightmove(), OnTheMarket(), Zoopla(), sources.OpenRent()):
+            if source.blocks_datacentres and sources.ON_ACTIONS and not os.environ.get('PROXY_URL'):
+                scan_status['sources'][source.label] = 'Skipped: this portal blocks hosting servers. Set PROXY_URL on Render to include it.'
+                continue
             try:
                 count = refreshed = reread = errors = cards_seen = pages_read = 0
                 for page, cards in enumerate(source.pages(SCAN_PAGES), 1):
