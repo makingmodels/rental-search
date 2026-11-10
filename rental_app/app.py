@@ -727,9 +727,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(200, {'user': username}, headers={'Set-Cookie': cookie(token, 604800)})
             if not self.user(): return self.send(401, {'error': 'Sign in required'})
             if path == '/api/logout':
-                cookie = SimpleCookie(self.headers.get('Cookie', ''))
-                if cookie.get('flat_session'):
-                    with db() as con: con.execute('DELETE FROM sessions WHERE token=?', (hashlib.sha256(cookie['flat_session'].value.encode()).hexdigest(),))
+                jar = SimpleCookie(self.headers.get('Cookie', ''))
+                if jar.get('flat_session'):
+                    with db() as con: con.execute('DELETE FROM sessions WHERE token=?', (hashlib.sha256(jar['flat_session'].value.encode()).hexdigest(),))
                 return self.send(200, {'ok': True}, headers={'Set-Cookie': cookie('', 0)})
             if path == '/api/scan':
                 if not scan_status['running']: threading.Thread(target=scan, daemon=True).start()

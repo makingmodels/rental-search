@@ -140,6 +140,25 @@ class HostingTests(unittest.TestCase):
             self.assertNotIn('Secure', app.cookie('abc', 60))
 
 
+    def test_correct_password_signs_in_and_sets_a_cookie(self):
+        import json, tempfile, pathlib, threading, urllib.request
+        from http.server import ThreadingHTTPServer
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as folder, \
+                patch.object(app, 'DB', pathlib.Path(folder) / 'db.sqlite3'), patch.object(app, 'PASSWORD', 'right'):
+            app.init()
+            server = ThreadingHTTPServer(('127.0.0.1', 0), app.Handler)
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            try:
+                request = urllib.request.Request(f'http://127.0.0.1:{server.server_port}/api/login', method='POST',
+                                                 data=json.dumps({'username': 'ash', 'password': 'right'}).encode())
+                with urllib.request.urlopen(request, timeout=5) as response:
+                    self.assertEqual(json.load(response), {'user': 'ash'})
+                    self.assertIn('flat_session=', response.headers['Set-Cookie'])
+            finally:
+                server.shutdown()
+                server.server_close()
+
+
 class SeedTests(unittest.TestCase):
     def test_seed_carries_shortlist_and_notes_but_never_sessions(self):
         import tempfile, pathlib
